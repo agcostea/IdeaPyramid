@@ -14,13 +14,16 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
+      "bundleIdentifier": "com.alexandrucostea.ideapyramid",
       "supportsTablet": true
     },
     "android": {
+      "package": "com.alexandrucostea.ideapyramid",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
+      "versionCode": 1,
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
     },
@@ -35,6 +38,12 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "c64e3a7e-05ce-4d61-8cec-bbde4c4a6b69"
+      }
     }
   }
 }

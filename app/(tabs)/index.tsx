@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TextInput, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Feather from 'react-native-vector-icons/Feather';
+import { StatusBar } from 'react-native';
 
 export default function App() {
   const [ideas, setIdeas] = useState(['']);
@@ -56,16 +58,11 @@ export default function App() {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Idea Pyramid</Text>
-    <Text style={styles.description}>
-  If you were just <Text style={{fontWeight: 'bold'}}>10 ideas away</Text> from your next big business breakthrough,  
-  how fast would you write them down?{"\n\n"}
-  
-  Start with your <Text style={{fontStyle: 'italic'}}>base idea at the bottom</Text>,  
-  then layer supporting ideas above it.{"\n\n"}
-  
-  The more layers you add, the closer you get to  
-  your <Text style={{fontWeight: 'bold'}}>next big idea</Text>.
-</Text>
+
+      <Text style={styles.description}>
+    “Your mind is for having ideas, not holding them”
+David Allen
+      </Text>
 
       <View style={styles.pyramid}>
         
@@ -83,20 +80,24 @@ export default function App() {
                   value={idea}
                   onChangeText={(text) => updateIdea(index, text)}
                   placeholder={`Layer ${ideas.length - i}`}
-                  placeholderTextColor="#000000ff"
+                  placeholderTextColor="#898989ff"
                   multiline
                 />
                 <TouchableOpacity style={styles.removeLayerBtn} onPress={() => removeLayer(index)}>
-                  <Text style={styles.removeLayerIcon}>🗑️</Text>
+                  <Feather name="x" size={25} color="gray" />
                 </TouchableOpacity>
               </View>
             </View>
           );
         })}
       </View>
-      <Text style={styles.addLayer} onPress={addLayer}>
-        ➕ Add New Layer
-      </Text>
+     <TouchableOpacity style={styles.addLayerContainer} onPress={addLayer} activeOpacity={0.7}>
+  <View style={styles.addLayerRow}>
+    <Feather name="plus" size={30} color="gray" />
+    <Text style={styles.addLayerText}>Add New Layer</Text>
+  </View>
+</TouchableOpacity>
+      <StatusBar barStyle="light-content" backgroundColor="#2a2929ff" />
     </ScrollView>
   );
 }
@@ -107,26 +108,52 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 50,
-    backgroundColor: '#1E1E1E', 
+    backgroundColor: '#2a2929ff', 
   },
   title: {
     fontSize: 32,
-    fontWeight: 'bold',
-    marginBottom: 40,
-    color: '#FFFFFF', 
-    fontFamily: 'System', 
+    fontWeight: '200',
+    marginBottom: 20,
+    textAlign: 'center',
+    color: '#cececeff',
+    fontFamily: 'Arial', 
   },
   description: {
     fontSize: 16,
     fontWeight: '400',
-    lineHeight: 24,
-    marginBottom: 40,
+ 
+    marginBottom: 30,
     textAlign: 'center',
-    color: '#D3D3D3',
-  fontFamily: 'System',      
-  paddingHorizontal: 20,      
+    color: '#b4b4b4ff',
+    fontFamily: 'Arial',     
 
   },
+  addLayerContainer: {
+  marginTop: 30,
+  alignSelf: 'center',
+  backgroundColor: '#333333ff', 
+  paddingHorizontal: 20,
+  paddingVertical: 10,
+  borderRadius: 10,
+  shadowColor: '#ffffffff',
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.3,
+  shadowRadius: 3,
+  elevation: 3,
+},
+
+addLayerRow: {
+  flexDirection: 'row',
+  alignItems: 'center',
+},
+
+addLayerText: {
+  color: 'gray',
+  fontSize: 18,
+  fontWeight: '500',
+  marginLeft: 10,
+}
+,
   pyramid: {
     flexDirection: 'column-reverse',
     alignItems: 'center',
@@ -139,24 +166,23 @@ const styles = StyleSheet.create({
     marginVertical: 6,
   },
   layer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#E0E0E0', 
-    borderRadius: 0, 
-    paddingHorizontal: 10,
-    minHeight: 54,
-    width: '90%',
-    maxWidth: 300,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 1,
-    elevation: 1,
+  alignSelf: 'center',
+  backgroundColor: '#414141ff', 
+  flexDirection: 'row',
+  alignItems: 'center',
+  borderRadius: 10,
+  shadowColor: '#ffffffff',
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.3,
+  shadowRadius: 3,
+  elevation: 3,
   },
   layerText: {
     flex: 1,
-    color: '#000000', 
+    color: '#9a9a9aff', 
     fontSize: 16,
+        textAlign: 'center',
+
     paddingVertical: 8,
     paddingRight: 8,
     fontFamily: 'System',
