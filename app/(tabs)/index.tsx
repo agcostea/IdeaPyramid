@@ -1,209 +1,275 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TextInput, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  TextInput,
+  ScrollView,
+  TouchableOpacity,
+  Alert,
+  StatusBar,
+} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Feather from 'react-native-vector-icons/Feather';
-import { StatusBar } from 'react-native';
 
 export default function App() {
-  const [ideas, setIdeas] = useState(['']);
+  const [pyramids, setPyramids] = useState([['']]);
 
   useEffect(() => {
-    const loadIdeas = async () => {
+    const loadPyramids = async () => {
       try {
-        const storedIdeas = await AsyncStorage.getItem('ideas');
-        if (storedIdeas) setIdeas(JSON.parse(storedIdeas));
+        const storedPyramids = await AsyncStorage.getItem('pyramids');
+        if (storedPyramids) setPyramids(JSON.parse(storedPyramids));
       } catch (error) {
-        console.log('Failed to load ideas', error);
+        console.log('Failed to load pyramids', error);
       }
     };
-    loadIdeas();
+    loadPyramids();
   }, []);
 
   useEffect(() => {
-    const saveIdeas = async () => {
+    const savePyramids = async () => {
       try {
-        await AsyncStorage.setItem('ideas', JSON.stringify(ideas));
+        await AsyncStorage.setItem('pyramids', JSON.stringify(pyramids));
       } catch (error) {
-        console.log('Failed to save ideas', error);
+        console.log('Failed to save pyramids', error);
       }
     };
-    saveIdeas();
-  }, [ideas]);
+    savePyramids();
+  }, [pyramids]);
 
-  const addLayer = () => setIdeas([...ideas, '']);
+  const addPyramid = () => setPyramids([...pyramids, ['']]);
 
-  const updateIdea = (index: number, text: string) => {
-    const newIdeas = [...ideas];
-    newIdeas[index] = text;
-    setIdeas(newIdeas);
-  };
-
-  const removeLayer = (index: number) => {
+  const removePyramid = (pyramidIndex: number) => {
     Alert.alert(
-      'Remove Layer',
-      `Are you sure you want to remove Idea ${ideas.length - index}?`,
+      'Remove Pyramid',
+      `Are you sure you want to remove Pyramid ${pyramidIndex + 1}?`,
       [
         { text: 'Cancel', style: 'cancel' },
         {
           text: 'Remove',
           style: 'destructive',
           onPress: () => {
-            const newIdeas = ideas.filter((_, i) => i !== index);
-            setIdeas(newIdeas.length ? newIdeas : ['']);
+            const newPyramids = [...pyramids];
+            newPyramids.splice(pyramidIndex, 1);
+            if (!newPyramids.length) newPyramids.push(['']); 
+            setPyramids(newPyramids);
           },
         },
       ]
     );
   };
+
+  const addLayer = (pyramidIndex: number) => {
+    const newPyramids = [...pyramids];
+    newPyramids[pyramidIndex].push('');
+    setPyramids(newPyramids);
+  };
+
+  const updateIdea = (pyramidIndex: number, layerIndex: number, text: string) => {
+    const newPyramids = [...pyramids];
+    newPyramids[pyramidIndex][layerIndex] = text;
+    setPyramids(newPyramids);
+  };
+
+  const removeLayer = (pyramidIndex: number, layerIndex: number) => {
+    Alert.alert(
+      'Remove Layer',
+      `Are you sure you want to remove Layer ${pyramids[pyramidIndex].length - layerIndex}?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Remove',
+          style: 'destructive',
+          onPress: () => {
+            const newPyramids = [...pyramids];
+            newPyramids[pyramidIndex].splice(layerIndex, 1);
+            if (!newPyramids[pyramidIndex].length) newPyramids[pyramidIndex] = [''];
+            setPyramids(newPyramids);
+          },
+        },
+      ]
+    );
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Idea Pyramid</Text>
 
       <Text style={styles.description}>
-    “Your mind is for having ideas, not holding them”
-David Allen
+        “Your mind is for having ideas, not holding them” – David Allen
       </Text>
 
-      <View style={styles.pyramid}>
-        
-        {[...ideas].reverse().map((idea, i) => {
-          const index = ideas.length - 1 - i;
-          const minWidth = 120;
-          const maxWidth = 300;
-          const widthStep = (maxWidth - minWidth) / (ideas.length - 1 || 1);
-          const width = maxWidth - i * widthStep;
-          return (
-            <View key={index} style={[styles.layerRow]}>
-              <View style={[styles.layer, { width }]}>  
-                <TextInput
-                  style={styles.layerText}
-                  value={idea}
-                  onChangeText={(text) => updateIdea(index, text)}
-                  placeholder={`Layer ${ideas.length - i}`}
-                  placeholderTextColor="#898989ff"
-                  multiline
-                />
-                <TouchableOpacity style={styles.removeLayerBtn} onPress={() => removeLayer(index)}>
-                  <Feather name="x" size={25} color="gray" />
-                </TouchableOpacity>
-              </View>
+      {pyramids.map((ideas, pyramidIndex) => (
+        <View key={pyramidIndex} style={{ marginBottom: 40 }}>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'center',
+              alignItems: 'center',
+              marginBottom: 6,
+            }}
+          >
+            <Text style={styles.pyramidTitle}>Pyramid {pyramidIndex + 1}</Text>
+            <TouchableOpacity
+              onPress={() => removePyramid(pyramidIndex)}
+              style={{ marginLeft: 10 }}
+            >
+              <Feather name="trash-2" size={20} color="#ff5555" />
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.pyramid}>
+            {[...ideas].reverse().map((idea, i) => {
+              const index = ideas.length - 1 - i;
+              const minWidth = 120;
+              const maxWidth = 300;
+              const widthStep = (maxWidth - minWidth) / (ideas.length - 1 || 1);
+              const width = maxWidth - i * widthStep;
+
+              return (
+                <View key={index} style={styles.layerRow}>
+                  <View style={[styles.layer, { width }]}>
+                    <TextInput
+                      style={styles.layerText}
+                      value={idea}
+                      onChangeText={(text) =>
+                        updateIdea(pyramidIndex, index, text)
+                      }
+                      placeholder={`Layer ${ideas.length - i}`}
+                      placeholderTextColor="#898989ff"
+                      multiline
+                    />
+                    <TouchableOpacity
+                      style={styles.removeLayerBtn}
+                      onPress={() => removeLayer(pyramidIndex, index)}
+                    >
+                      <Feather name="x" size={25} color="gray" />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              );
+            })}
+          </View>
+
+          <TouchableOpacity
+            style={styles.addLayerContainer}
+            onPress={() => addLayer(pyramidIndex)}
+            activeOpacity={0.7}
+          >
+            <View style={styles.addLayerRow}>
+              <Feather name="plus" size={30} color="gray" />
+              <Text style={styles.addLayerText}>Add New Layer</Text>
             </View>
-          );
-        })}
-      </View>
-     <TouchableOpacity style={styles.addLayerContainer} onPress={addLayer} activeOpacity={0.7}>
-  <View style={styles.addLayerRow}>
-    <Feather name="plus" size={30} color="gray" />
-    <Text style={styles.addLayerText}>Add New Layer</Text>
-  </View>
-</TouchableOpacity>
-      <StatusBar barStyle="light-content" backgroundColor="#2a2929ff" />
+          </TouchableOpacity>
+        </View>
+      ))}
+
+      <TouchableOpacity style={styles.addLayerContainer} onPress={addPyramid}>
+        <View style={styles.addLayerRow}>
+          <Feather name="plus" size={30} color="gray" />
+          <Text style={styles.addLayerText}>Add New Pyramid</Text>
+        </View>
+      </TouchableOpacity>
+
+      <StatusBar barStyle="light-content" backgroundColor="#1a1a1a" />
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
- container: {
+  container: {
     flexGrow: 1,
     alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 50,
-    backgroundColor: '#2a2929ff', 
+    justifyContent: 'flex-start',
+    paddingVertical: 60,
+    paddingHorizontal: 15,
+    backgroundColor: '#1a1a1a',
   },
   title: {
-    fontSize: 32,
-    fontWeight: '200',
-    marginBottom: 20,
+    fontSize: 36,
+    fontWeight: '900',
+    marginBottom: 8,
     textAlign: 'center',
-    color: '#cececeff',
-    fontFamily: 'Arial', 
+    color: '#b0b0b0', 
+    fontFamily: 'Arial',
   },
   description: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '400',
- 
-    marginBottom: 30,
+    marginBottom: 20,
     textAlign: 'center',
-    color: '#b4b4b4ff',
-    fontFamily: 'Arial',     
-
+    color: '#888888',
+    fontFamily: 'Courier New',
+  },
+  pyramidTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#cccccc',
+    textAlign: 'center',
+    marginBottom: 6,
+    letterSpacing: 2,
   },
   addLayerContainer: {
-  marginTop: 30,
-  alignSelf: 'center',
-  backgroundColor: '#333333ff', 
-  paddingHorizontal: 20,
-  paddingVertical: 10,
-  borderRadius: 10,
-  shadowColor: '#ffffffff',
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.3,
-  shadowRadius: 3,
-  elevation: 3,
-},
-
-addLayerRow: {
-  flexDirection: 'row',
-  alignItems: 'center',
-},
-
-addLayerText: {
-  color: 'gray',
-  fontSize: 18,
-  fontWeight: '500',
-  marginLeft: 10,
-}
-,
+    marginTop: 10,
+    alignSelf: 'center',
+    backgroundColor: '#2e2e2e',
+    paddingHorizontal: 22,
+    paddingVertical: 12,
+    borderRadius: 4,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.6,
+    shadowRadius: 6,
+    elevation: 6,
+  },
+  addLayerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  addLayerText: {
+    color: '#aaaaaa',
+    fontSize: 15,
+    fontWeight: '700',
+    marginLeft: 10,
+  },
   pyramid: {
     flexDirection: 'column-reverse',
     alignItems: 'center',
     width: '100%',
-    paddingBottom: 20,
+    paddingBottom: 15,
   },
   layerRow: {
     width: '100%',
     alignItems: 'center',
-    marginVertical: 6,
+    marginVertical: 4,
   },
   layer: {
-  alignSelf: 'center',
-  backgroundColor: '#414141ff', 
-  flexDirection: 'row',
-  alignItems: 'center',
-  borderRadius: 10,
-  shadowColor: '#ffffffff',
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.3,
-  shadowRadius: 3,
-  elevation: 3,
+    alignSelf: 'center',
+    backgroundColor: '#3f3d3dff',
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 2,
+    paddingHorizontal: 8,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.7,
+    shadowRadius: 8,
+    elevation: 8,
   },
   layerText: {
     flex: 1,
-    color: '#9a9a9aff', 
-    fontSize: 16,
-        textAlign: 'center',
-
-    paddingVertical: 8,
-    paddingRight: 8,
-    fontFamily: 'System',
+    color: '#ffffffff',
+    fontSize: 14,
+    textAlign: 'center',
+    paddingVertical: 10,
+    fontFamily: 'Courier New',
     textAlignVertical: 'center',
     backgroundColor: 'transparent',
   },
   removeLayerBtn: {
     justifyContent: 'center',
     alignItems: 'center',
-    paddingLeft: 8,
-  },
-  removeLayerIcon: {
-    fontSize: 20,
-    color: '#000000', 
-  },
-  addLayer: {
-    marginTop: 30,
-    fontSize: 18,
-    color: '#ffffffff', 
-    fontWeight: 'normal',
-    alignSelf: 'center',
-    fontFamily: 'System',
+    paddingLeft: 6,
   },
 });
