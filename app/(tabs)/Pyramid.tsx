@@ -91,18 +91,20 @@ export function usePyramids() {
     setPyramids(newPyramids);
   };
 
-  const sharePyramid = async (pyramidIndex: number) => {
-    try {
-      const { name, layers } = pyramids[pyramidIndex];
-      let textToShare = `🛑 ${name || `Pyramid ${pyramidIndex + 1}`} 🛑\n\n`;
-      layers.forEach((layer, i) => {
-        textToShare += `${layers.length - i}. ${layer || '[empty]'}\n`;
-      });
-      await Share.share({ message: textToShare });
-    } catch (error) {
-      console.log('Error sharing pyramid', error);
-    }
-  };
+ const sharePyramid = async (pyramidIndex: number) => {
+  try {
+    const { name, layers } = pyramids[pyramidIndex];
+    let textToShare = `🔺 ${name || `Pyramid ${pyramidIndex + 1}`} 🔺\n\n`;
+    
+    layers.forEach((layer, i) => {
+      textToShare += `${i + 1}. ${layer || '[empty]'}\n`;
+    });
+
+    await Share.share({ message: textToShare });
+  } catch (error) {
+    console.log('Error sharing pyramid', error);
+  }
+};
 
   return {
     pyramids,

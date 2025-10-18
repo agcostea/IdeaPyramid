@@ -64,6 +64,7 @@ export default function PyramidApp() {
                       onChangeText={(text) => updateIdea(pyramidIndex, index, text)}
                       placeholder={`Layer ${pyramid.layers.length - i}`}
                       placeholderTextColor="#898989ff"
+                      textAlign='center'
                       multiline
                     />
                     <TouchableOpacity
